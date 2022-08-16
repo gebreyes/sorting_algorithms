@@ -1,78 +1,68 @@
 #include "sort.h"
-
 /**
- * get_digit - gets a digit from a number
- * @number: the integer
- * @digit: the digit position to get
- *
- * Return: the digit value at given position
-**/
-int get_digit(long number, int digit)
-{
-	long i = 0L, pow = 1L, ret;
-
-	for (i = 0; i < digit; i++)
-		pow *= 10L;
-	ret = ((number / pow) % 10);
-	return (ret);
-}
-
-/**
- * radix_pass - sorts by radix
- * @array: the integer array to sort
- * @size: the size of the array
- * @digit: the current digit to check
- * @new_array: target array of same size
- *
- * Return: void.
+ * max_val - gets max value from array
+ * @array: pointer to array
+ * @size: size of the array
+ * Return: max value from array
  */
-int radix_pass(int *array, ssize_t size, int digit, int *new_array)
+int max_val(int *array, size_t size)
 {
-	ssize_t i;
-	int buckets[10] = {0};
+	int max = array[0];
+	size_t i;
 
 	for (i = 0; i < size; i++)
-		buckets[get_digit(array[i], digit)]++;
-	for (i = 1; i <= 9; i++)
-		buckets[i] += buckets[i - 1];
-	for (i = size - 1; i > -1; i--)
-		new_array[buckets[get_digit(array[i], digit)]-- - 1] = array[i];
-	return (1);
+	{
+		if (array[i] > max)
+			max = array[i];
+	}
+	return (max);
 }
-
 /**
- * radix_sort - sorts by radix
- * @size: the size of the array
- * @array: the integer array to sort
- *
- * Return: the gap size
+ * radix_sort - sorts an array of integers is ASC
+ * order implementing Radix Sort algorithm
+ * @array: pointer to array
+ * @size: size of the array
  */
 void radix_sort(int *array, size_t size)
 {
-	int *old_array, *new_array, *temp_ptr, *ptr, max = 0;
-	size_t i, sd = 1;
+	int *new_arr;
+	int i, max, e = 1;
+	int tam = size;
 
 	if (!array || size < 2)
 		return;
 
-	for (i = 0; i < size; i++)
-		if (array[i] > max)
-			max = array[i];
-	while (max /= 10)
-		sd++;
-	old_array = array;
-	new_array = ptr = malloc(sizeof(int) * size);
-	if (!new_array)
-		return;
-	for (i = 0; i < sd; i++)
+	max = max_val(array, size);
+
+	new_arr = malloc(sizeof(int) * size);
+	while (max / e > 0)
 	{
-		radix_pass(old_array, (ssize_t)size, i, new_array);
-		temp_ptr = old_array;
-		old_array = new_array;
-		new_array = temp_ptr;
-		print_array(old_array, size);
+		int brews[20] = {0};
+
+		i = 0;
+
+		while (i < tam)
+		{
+			brews[(array[i] / e) % 10]++;
+			i++;
+		}
+
+		if (brews != NULL)
+		{
+			for (i = 1; i < 10; i++)
+				brews[i] += brews[i - 1];
+
+			for (i = tam - 1; i >= 0; i--)
+			{
+				new_arr[brews[(array[i] / e) % 10] - 1] = array[i];
+				brews[(array[i] / e) % 10]--;
+			}
+
+			for (i = 0; i < tam; i++)
+				array[i] = new_arr[i];
+		}
+		e *= 10;
+		print_array(array, size);
 	}
-	for (i = 0; i < size; i++)
-		array[i] = old_array[i];
-	free(ptr);
+	free(new_arr);
 }

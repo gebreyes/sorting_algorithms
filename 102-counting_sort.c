@@ -1,72 +1,43 @@
 #include "sort.h"
 /**
-*integer_count- number of times integer appears in an array
-*
-*@array: array given
-*@size: size of array
-*@range: number to check for occurance
-*
-*Return: number of occurances
-*/
-int integer_count(int *array, size_t size, int range)
-{
-	int total = 0;
-	size_t i;
-
-	for (i = 0; i < size; i++)
-	{
-		if (array[i] == range)
-			total++;
-	}
-	return (total);
-}
-
-/**
-*counting_sort - counting sort algorithm
-*
-*@array: array to be sorted
-*@size: size of the array
-*/
+ * counting_sort - sorts an array of integers in ascending
+ * order using the Counting sort algorithm
+ * @array: pointer to array
+ * @size: size of the array
+ **/
 void counting_sort(int *array, size_t size)
 {
-	int k = 0, b = 0, r = 0;
-	size_t i, c;
-	int *array2, *newArray;
+	int n, j, *count_array, *aux;
+	size_t i;
 
 	if (!array || size < 2)
 		return;
+	n = array[0];
 	for (i = 0; i < size; i++)
 	{
-		if (array[i] > k)
-		{
-			k = array[i];
-		}
+		if (array[i] > n)
+			n = array[i];
 	}
-	array2 = malloc(sizeof(int) * (k + 1));
-	if (!array2)
-		return;
-	for (c = 0; c < ((size_t)k + 1); c++)
+	count_array = calloc((n + 1), sizeof(int));
+	for (i = 0; i < size; i++)
 	{
-		if (c == 0)
-			array2[c] = integer_count(array, size, r);
-		else
-		{
-			b = array2[c - 1] + integer_count(array, size, r);
-			array2[c] = b;
-		}
-		r++;
+		count_array[array[i]]++;
 	}
-	print_array(array2, (k + 1));
-	newArray = malloc(sizeof(int) * size);
-	if (!newArray)
+	for (j = 1; j < n; j++)
 	{
-		free(array2);
-		return;
+		count_array[j + 1] += count_array[j];
+	}
+	print_array(count_array, n + 1);
+	aux = malloc(sizeof(int) * size);
+	for (i = 0; i < size; i++)
+	{
+		count_array[array[i]]--;
+		aux[count_array[array[i]]] = array[i];
 	}
 	for (i = 0; i < size; i++)
-		newArray[array2[array[i]]-- - 1] = array[i];
-	for (i = 0; i < size; i++)
-		array[i] = newArray[i];
-	free(newArray);
-	free(array2);
+	{
+		array[i] = aux[i];
+	}
+	free(aux);
+	free(count_array);
 }
